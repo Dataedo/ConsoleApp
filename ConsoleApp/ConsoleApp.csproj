@@ -44,6 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataReader.cs" />
+    <Compile Include="DataStructure\ImportedObject.cs" />
+    <Compile Include="DataStructure\ImportedObjectBaseClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
