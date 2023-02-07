@@ -23,7 +23,7 @@
 
             var importedLines = File.ReadAllLines(fileToImport);
 
-            for (int i = 0; i <= importedLines.Count(); i++)
+            for (int i = 0; i < importedLines.Count(); i++)
             {
 
                 var importedLine = importedLines[i];
@@ -51,15 +51,7 @@
             }
 
             // clear and correct imported data
-            foreach (var importedObject in ImportedObjects)
-            {
-                importedObject.Type = importedObject.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
-                importedObject.Name = importedObject.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.Schema = importedObject.Schema.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.ParentName = importedObject.ParentName.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.ParentType = importedObject.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-            }
-
+            ClearImportedData(ImportedObjects);
 
             foreach (var importedObject in ImportedObjects)
             {
@@ -93,6 +85,18 @@
             }
 
             Console.ReadLine();
+        }
+
+        private void ClearImportedData(IList<ImportedObject> ImportedObjects)
+        {
+            foreach (var importedObject in ImportedObjects)
+            {
+                importedObject.Type = importedObject.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
+                importedObject.Name = importedObject.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                importedObject.Schema = importedObject.Schema.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                importedObject.ParentName = importedObject.ParentName.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                importedObject.ParentType = importedObject.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+            }
         }
     }
 
