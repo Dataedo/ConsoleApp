@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using ConsoleApp.Model;
+using System.Collections.Generic;
 
 namespace ConsoleApp
 {
     public interface IDataPrinter
     {
-
-        void PrintDatabaseObjects(IList<DatabaseObject> databaseObjects);
+        void PrintDatabaseObjects(IList<Database> databaseObjects);
     }
 }

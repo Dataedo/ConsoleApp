@@ -1,5 +1,6 @@
 ﻿namespace ConsoleApp
 {
+    using ConsoleApp.Model;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -8,60 +9,92 @@
     public class DataReader
     {
 
-        public IList<DatabaseObject> ImportData(string fileToImport, bool printData = true)
+
+        public IList<Database> ImportData(string fileToImport, bool printData = true)
         {
-            var importedObjects = new List<DatabaseObject>();
 
-            var importedLines = File.ReadAllLines(fileToImport);
+            var importedLines = File.ReadAllLines(fileToImport).ToList();
+            IList<Database> databases = new List<Database>();
+            IList<Table> tables = new List<Table>();
+            IList<Column> columns = new List<Column>();
 
-            for (int i = 0; i < importedLines.Count(); i++)
-            {
+            importedLines = importedLines.Where(importedLine => !String.IsNullOrEmpty(importedLine) && importedLine.Split(';').Length >= 7).ToList();
 
-                var importedLine = importedLines[i];
-                if (String.IsNullOrEmpty(importedLine))
-                    continue;
+            importedLines.Where(importedLine => importedLine.ToLower().StartsWith("database")).ToList().ForEach(databaseLine => databases.Add(MapLineToDatabaseObject(databaseLine)));
+            importedLines.Where(importedLine => importedLine.ToLower().StartsWith("table")).ToList().ForEach(tableLine => tables.Add(MapLineToTableObject(tableLine)));
+            importedLines.Where(importedLine => importedLine.ToLower().StartsWith("column")).ToList().ForEach(columnLine => columns.Add(MapLineToColumnObject(columnLine)));
 
-
-                var values = importedLine.Split(';');
-                if (values.Length < 7)
-                    continue;
-
-
-                var importedObject = new DatabaseObject
-                {
-                    Type = values[0],
-                    Name = values[1],
-                    Schema = values[2],
-                    ParentName = values[3],
-                    ParentType = values[4],
-                    DataType = values[5],
-                    IsNullable = values[6]
-                };
-
-                importedObjects.Add(importedObject);
-            }
+            tables.ToList().ForEach(tbl => tbl.Columns = columns.Where(cl => cl.ParentName.ToLower() == tbl.Name.ToLower()).ToList());
+            databases.ToList().ForEach(db => db.Tables = tables.Where(tbl => tbl.ParentName.ToLower() == db.Name.ToLower()).ToList());
 
             // clear and correct imported data
-            ClearImportedData(importedObjects);
+            ClearImportedData(databases);
 
-            importedObjects.ToList().ForEach(obj => obj.NumberOfChildren = importedObjects.Count(x => x.ParentType == obj.Type && x.ParentName == obj.Name));
-
-            return importedObjects;
+            return databases;
 
         }
 
-
-
-        private void ClearImportedData(IList<DatabaseObject> ImportedObjects)
+        private Column MapLineToColumnObject(string columnLine)
         {
-            foreach (var importedObject in ImportedObjects)
+            var splittedLine = columnLine.Split(';');
+
+            return new Column()
             {
-                importedObject.Type = importedObject.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
-                importedObject.Name = importedObject.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.Schema = importedObject.Schema.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.ParentName = importedObject.ParentName.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.ParentType = importedObject.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-            }
+                Type = splittedLine[0],
+                Name = splittedLine[1],
+                Schema = splittedLine[2],
+                ParentName = splittedLine[3],
+                ParentType = splittedLine[4],
+                DataType = splittedLine[5],
+                IsNullable = splittedLine[6]
+            };
+        }
+        private Table MapLineToTableObject(string tableLine)
+        {
+            var splittedLine = tableLine.Split(';');
+            return new Table()
+            {
+                Type = splittedLine[0],
+                Name = splittedLine[1],
+                Schema = splittedLine[2],
+                ParentName = splittedLine[3],
+                ParentType = splittedLine[4]
+            };
+        }
+
+        private Database MapLineToDatabaseObject(string databaseLine)
+        {
+            var splittedLine = databaseLine.Split(';');
+            return new Database() { Type = splittedLine[0], Name = splittedLine[1] };
+        }
+
+        private void ClearImportedData(IList<Database> ImportedObjects)
+        {
+            ImportedObjects.ToList().ForEach(db =>
+            {
+                db.Type = db.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
+                db.Name = db.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                db.Tables.ToList().ForEach(tbl =>
+                {
+                    tbl.Type = tbl.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
+                    tbl.Name = tbl.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                    tbl.Schema = tbl.Schema.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                    tbl.ParentName = tbl.ParentName.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                    tbl.ParentType = tbl.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+
+                    tbl.Columns.ToList().ForEach(cln =>
+                    {
+                        cln.Type = cln.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
+                        cln.Name = cln.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                        cln.Schema = cln.Schema.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                        cln.ParentName = cln.ParentName.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                        cln.ParentType = cln.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                        cln.DataType = cln.DataType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
+                    });
+
+                });
+            });
+
         }
     }
 

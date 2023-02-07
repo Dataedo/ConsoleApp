@@ -44,10 +44,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleDataPrinter.cs" />
-    <Compile Include="DatabaseObject.cs" />
-    <Compile Include="DatabaseObjectBase.cs" />
+    <Compile Include="Model\Column.cs" />
+    <Compile Include="Model\Database.cs" />
+    <Compile Include="Model\DatabaseObjectBase.cs" />
     <Compile Include="DataReader.cs" />
     <Compile Include="IDataPrinter.cs" />
+    <Compile Include="Model\Table.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

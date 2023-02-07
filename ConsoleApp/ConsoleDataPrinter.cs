@@ -1,55 +1,28 @@
-﻿using System;
+﻿using ConsoleApp.Model;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleApp
 {
     internal class ConsoleDataPrinter : IDataPrinter
     {
-        private void PrintColumnInfo(DatabaseObject column)
+
+        public void PrintDatabaseObjects(IList<Database> databaseObjects)
         {
-            Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable == "1" ? "accepts nulls" : "with no nulls")}");
-
-        }
-
-        private void PrintDatabaseInfo(DatabaseObject database)
-        {
-            Console.WriteLine($"Database '{database.Name}' ({database.NumberOfChildren} tables)");
-        }
-
-
-        private void PrintTableInfo(DatabaseObject table)
-        {
-            Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
-
-        }
-
-        public void PrintDatabaseObjects(IList<DatabaseObject> databaseObjects)
-        {
-            foreach (var database in databaseObjects)
+            databaseObjects.ToList().ForEach(database =>
             {
-                if (database.Type == "DATABASE")
+                Console.WriteLine($"Database '{database.Name}' ({database.NumberOfChildren} tables)");
+                database.Tables.ToList().ForEach(table =>
                 {
-                    PrintDatabaseInfo(database);
-
-                    // print all database's tables
-                    foreach (var table in databaseObjects)
+                    Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
+                    table.Columns.ToList().ForEach(column =>
                     {
-                        if (table.ParentType.ToUpper() == database.Type && table.ParentName == database.Name)
-                        {
-                            PrintTableInfo(table);
+                        Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable == "1" ? "accepts nulls" : "with no nulls")}");
+                    });
+                });
+            });
 
-                            // print all table's columns
-                            foreach (var column in databaseObjects)
-                            {
-                                if (column.ParentType.ToUpper() == table.Type && column.ParentName == table.Name)
-                                {
-                                    PrintColumnInfo(column);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
