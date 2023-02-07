@@ -2,8 +2,8 @@
 {
     public interface IDataPrinter
     {
-        void PrintDatabaseInfo(ImportedObject database);
-        void PrintTableInfo(ImportedObject table);
-        void PrintColumnInfo(ImportedObject column);
+        void PrintDatabaseInfo(DatabaseObject database);
+        void PrintTableInfo(DatabaseObject table);
+        void PrintColumnInfo(DatabaseObject column);
     }
 }

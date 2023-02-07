@@ -8,7 +8,7 @@
     public class DataReader
     {
 
-        IList<ImportedObject> ImportedObjects;
+        IList<DatabaseObject> _importedObjects;
         private IDataPrinter _dataPrinter;
 
 
@@ -19,7 +19,7 @@
 
         public void ImportAndPrintData(string fileToImport, bool printData = true)
         {
-            ImportedObjects = new List<ImportedObject>();
+            _importedObjects = new List<DatabaseObject>();
 
             var importedLines = File.ReadAllLines(fileToImport);
 
@@ -36,7 +36,7 @@
                     continue;
 
 
-                var importedObject = new ImportedObject
+                var importedObject = new DatabaseObject
                 {
                     Type = values[0],
                     Name = values[1],
@@ -47,32 +47,30 @@
                     IsNullable = values[6]
                 };
 
-                ImportedObjects.Add(importedObject);
+                _importedObjects.Add(importedObject);
             }
 
             // clear and correct imported data
-            ClearImportedData(ImportedObjects);
+            ClearImportedData(_importedObjects);
 
-            foreach (var importedObject in ImportedObjects)
-            {
-                importedObject.NumberOfChildren = ImportedObjects.Count(x => x.ParentType == importedObject.Type && x.ParentName == importedObject.Name);
-            }
+            _importedObjects.ToList().ForEach(obj => obj.NumberOfChildren = _importedObjects.Count(x => x.ParentType == obj.Type && x.ParentName == obj.Name));
 
-            foreach (var database in ImportedObjects)
+
+            foreach (var database in _importedObjects)
             {
                 if (database.Type == "DATABASE")
                 {
                     _dataPrinter.PrintDatabaseInfo(database);
 
                     // print all database's tables
-                    foreach (var table in ImportedObjects)
+                    foreach (var table in _importedObjects)
                     {
                         if (table.ParentType.ToUpper() == database.Type && table.ParentName == database.Name)
                         {
                             _dataPrinter.PrintTableInfo(table);
 
                             // print all table's columns
-                            foreach (var column in ImportedObjects)
+                            foreach (var column in _importedObjects)
                             {
                                 if (column.ParentType.ToUpper() == table.Type && column.ParentName == table.Name)
                                 {
@@ -87,7 +85,7 @@
             Console.ReadLine();
         }
 
-        private void ClearImportedData(IList<ImportedObject> ImportedObjects)
+        private void ClearImportedData(IList<DatabaseObject> ImportedObjects)
         {
             foreach (var importedObject in ImportedObjects)
             {
@@ -100,7 +98,7 @@
         }
     }
 
-    public class ImportedObject : ImportedObjectBaseClass
+    public class DatabaseObject : DatabaseObjectBase
     {
         public string Name
         {
@@ -121,7 +119,7 @@
         public double NumberOfChildren;
     }
 
-    public class ImportedObjectBaseClass
+    public class DatabaseObjectBase
     {
         public string Name { get; set; }
         public string Type { get; set; }
