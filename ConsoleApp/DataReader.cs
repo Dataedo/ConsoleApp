@@ -34,6 +34,7 @@
                     DataType = values[5],
                     IsNullable = values[6]
                 };
+
                 ImportedObjects.Add(importedObject);
             }
 
@@ -47,9 +48,16 @@
                 importedObject.ParentType = importedObject.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
             }
 
+
+            foreach (var importedObject in ImportedObjects)
+            {
+                importedObject.NumberOfChildren = ImportedObjects.Count(x => x.ParentType == importedObject.Type && x.ParentName == importedObject.Name);
+            }
+
             // assign number of children
             for (int i = 0; i < ImportedObjects.Count(); i++)
             {
+
                 var importedObject = ImportedObjects.ToArray()[i];
                 foreach (var impObj in ImportedObjects)
                 {
