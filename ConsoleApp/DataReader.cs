@@ -17,13 +17,16 @@
             IList<Table> tables = new List<Table>();
             IList<Column> columns = new List<Column>();
 
+            //remove blank and too shor lines
             importedLines = importedLines.Where(importedLine => !String.IsNullOrEmpty(importedLine) && importedLine.Split(';').Length >= 7).ToList();
 
+            //map databases objects
             databases = importedLines.Where(importedLine => importedLine.ToLower().StartsWith("database"))
                     .Select(dbLine => dbLine.Split(';'))
                     .Select(db => new Database() { Type = db[0], Name = db[1] })
                     .ToList();
 
+            //map tables objects
             tables = importedLines.Where(importedLine => importedLine.ToLower().StartsWith("table"))
                     .Select(tblLine => tblLine.Split(';'))
                     .Select(tbl => new Table()
@@ -35,7 +38,7 @@
                         ParentType = tbl[4]
                     })
                     .ToList();
-
+            //map columns objects
             columns = importedLines.Where(importedLine => importedLine.ToLower().StartsWith("column"))
                     .Select(clnLine => clnLine.Split(';'))
                     .Select(cln => new Column()
@@ -50,7 +53,9 @@
                     })
                     .ToList();
 
+            //add columns list to tables objects 
             tables.ToList().ForEach(tbl => tbl.Columns = columns.Where(cl => cl.ParentName.ToLower() == tbl.Name.ToLower()).ToList());
+            //add table objects to databases objects
             databases.ToList().ForEach(db => db.Tables = tables.Where(tbl => tbl.ParentName.ToLower() == db.Name.ToLower()).ToList());
 
             // clear and correct imported data
