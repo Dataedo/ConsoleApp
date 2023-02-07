@@ -8,18 +8,9 @@
     public class DataReader
     {
 
-        IList<DatabaseObject> _importedObjects;
-        private IDataPrinter _dataPrinter;
-
-
-        public DataReader(IDataPrinter dataPrinter)
+        public IList<DatabaseObject> ImportData(string fileToImport, bool printData = true)
         {
-            this._dataPrinter = dataPrinter;
-        }
-
-        public void ImportAndPrintData(string fileToImport, bool printData = true)
-        {
-            _importedObjects = new List<DatabaseObject>();
+            var importedObjects = new List<DatabaseObject>();
 
             var importedLines = File.ReadAllLines(fileToImport);
 
@@ -47,43 +38,19 @@
                     IsNullable = values[6]
                 };
 
-                _importedObjects.Add(importedObject);
+                importedObjects.Add(importedObject);
             }
 
             // clear and correct imported data
-            ClearImportedData(_importedObjects);
+            ClearImportedData(importedObjects);
 
-            _importedObjects.ToList().ForEach(obj => obj.NumberOfChildren = _importedObjects.Count(x => x.ParentType == obj.Type && x.ParentName == obj.Name));
+            importedObjects.ToList().ForEach(obj => obj.NumberOfChildren = importedObjects.Count(x => x.ParentType == obj.Type && x.ParentName == obj.Name));
 
+            return importedObjects;
 
-            foreach (var database in _importedObjects)
-            {
-                if (database.Type == "DATABASE")
-                {
-                    _dataPrinter.PrintDatabaseInfo(database);
-
-                    // print all database's tables
-                    foreach (var table in _importedObjects)
-                    {
-                        if (table.ParentType.ToUpper() == database.Type && table.ParentName == database.Name)
-                        {
-                            _dataPrinter.PrintTableInfo(table);
-
-                            // print all table's columns
-                            foreach (var column in _importedObjects)
-                            {
-                                if (column.ParentType.ToUpper() == table.Type && column.ParentName == table.Name)
-                                {
-                                    _dataPrinter.PrintColumnInfo(column);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Console.ReadLine();
         }
+
+
 
         private void ClearImportedData(IList<DatabaseObject> ImportedObjects)
         {
@@ -98,30 +65,4 @@
         }
     }
 
-    public class DatabaseObject : DatabaseObjectBase
-    {
-        public string Name
-        {
-            get;
-            set;
-        }
-        public string Schema;
-
-        public string ParentName;
-        public string ParentType
-        {
-            get; set;
-        }
-
-        public string DataType { get; set; }
-        public string IsNullable { get; set; }
-
-        public double NumberOfChildren;
-    }
-
-    public class DatabaseObjectBase
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-    }
 }
