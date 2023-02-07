@@ -13,16 +13,9 @@
         {
             ImportedObjects = new List<ImportedObject>();
 
-            var streamReader = new StreamReader(fileToImport);
+            var importedLines = File.ReadAllLines(fileToImport);
 
-            var importedLines = new List<string>();
-            while (!streamReader.EndOfStream)
-            {
-                var line = streamReader.ReadLine();
-                importedLines.Add(line);
-            }
-
-            for (int i = 0; i <= importedLines.Count; i++)
+            for (int i = 0; i <= importedLines.Count(); i++)
             {
                 var importedLine = importedLines[i];
                 var values = importedLine.Split(';');
