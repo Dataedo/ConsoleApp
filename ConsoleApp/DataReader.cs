@@ -54,23 +54,6 @@
                 importedObject.NumberOfChildren = ImportedObjects.Count(x => x.ParentType == importedObject.Type && x.ParentName == importedObject.Name);
             }
 
-            // assign number of children
-            for (int i = 0; i < ImportedObjects.Count(); i++)
-            {
-
-                var importedObject = ImportedObjects.ToArray()[i];
-                foreach (var impObj in ImportedObjects)
-                {
-                    if (impObj.ParentType == importedObject.Type)
-                    {
-                        if (impObj.ParentName == importedObject.Name)
-                        {
-                            importedObject.NumberOfChildren = 1 + importedObject.NumberOfChildren;
-                        }
-                    }
-                }
-            }
-
             foreach (var database in ImportedObjects)
             {
                 if (database.Type == "DATABASE")
@@ -80,22 +63,16 @@
                     // print all database's tables
                     foreach (var table in ImportedObjects)
                     {
-                        if (table.ParentType.ToUpper() == database.Type)
+                        if (table.ParentType.ToUpper() == database.Type && table.ParentName == database.Name)
                         {
-                            if (table.ParentName == database.Name)
-                            {
-                                Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
+                            Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
 
-                                // print all table's columns
-                                foreach (var column in ImportedObjects)
+                            // print all table's columns
+                            foreach (var column in ImportedObjects)
+                            {
+                                if (column.ParentType.ToUpper() == table.Type && column.ParentName == table.Name)
                                 {
-                                    if (column.ParentType.ToUpper() == table.Type)
-                                    {
-                                        if (column.ParentName == table.Name)
-                                        {
-                                            Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable == "1" ? "accepts nulls" : "with no nulls")}");
-                                        }
-                                    }
+                                    Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable == "1" ? "accepts nulls" : "with no nulls")}");
                                 }
                             }
                         }
