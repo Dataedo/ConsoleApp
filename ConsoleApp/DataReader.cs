@@ -2,18 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using System.IO;
     using System.Linq;
-    using System.Threading.Tasks;
 
     public class DataReader
     {
-        IEnumerable<ImportedObject> ImportedObjects;
+        IList<ImportedObject> ImportedObjects;
 
         public void ImportAndPrintData(string fileToImport, bool printData = true)
         {
-            ImportedObjects = new List<ImportedObject>() { new ImportedObject() };
+            ImportedObjects = new List<ImportedObject>();
 
             var streamReader = new StreamReader(fileToImport);
 
@@ -36,7 +34,7 @@
                 importedObject.ParentType = values[4];
                 importedObject.DataType = values[5];
                 importedObject.IsNullable = values[6];
-                ((List<ImportedObject>)ImportedObjects).Add(importedObject);
+                ImportedObjects.Add(importedObject);
             }
 
             // clear and correct imported data
