@@ -25,12 +25,16 @@
 
             for (int i = 0; i <= importedLines.Count(); i++)
             {
+
                 var importedLine = importedLines[i];
-                var values = importedLine.Split(';');
-
-
-                if (String.IsNullOrEmpty(importedLine) || values.Length < 7)
+                if (String.IsNullOrEmpty(importedLine))
                     continue;
+
+
+                var values = importedLine.Split(';');
+                if (values.Length < 7)
+                    continue;
+
 
                 var importedObject = new ImportedObject
                 {
