@@ -7,7 +7,6 @@ namespace ConsoleApp
 {
     internal class ConsoleDataPrinter : IDataPrinter
     {
-
         public void PrintDatabaseObjects(IList<Database> databaseObjects)
         {
             databaseObjects.ToList().ForEach(database =>

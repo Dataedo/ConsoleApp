@@ -6,23 +6,49 @@
     using System.IO;
     using System.Linq;
 
-    public class DataReader
+    public class DataReader : IDataReader
     {
-
-
-        public IList<Database> ImportData(string fileToImport, bool printData = true)
+        public IList<Database> ImportData(string fileToImport)
         {
 
             var importedLines = File.ReadAllLines(fileToImport).ToList();
+
             IList<Database> databases = new List<Database>();
             IList<Table> tables = new List<Table>();
             IList<Column> columns = new List<Column>();
 
             importedLines = importedLines.Where(importedLine => !String.IsNullOrEmpty(importedLine) && importedLine.Split(';').Length >= 7).ToList();
 
-            importedLines.Where(importedLine => importedLine.ToLower().StartsWith("database")).ToList().ForEach(databaseLine => databases.Add(MapLineToDatabaseObject(databaseLine)));
-            importedLines.Where(importedLine => importedLine.ToLower().StartsWith("table")).ToList().ForEach(tableLine => tables.Add(MapLineToTableObject(tableLine)));
-            importedLines.Where(importedLine => importedLine.ToLower().StartsWith("column")).ToList().ForEach(columnLine => columns.Add(MapLineToColumnObject(columnLine)));
+            databases = importedLines.Where(importedLine => importedLine.ToLower().StartsWith("database"))
+                    .Select(dbLine => dbLine.Split(';'))
+                    .Select(db => new Database() { Type = db[0], Name = db[1] })
+                    .ToList();
+
+            tables = importedLines.Where(importedLine => importedLine.ToLower().StartsWith("table"))
+                    .Select(tblLine => tblLine.Split(';'))
+                    .Select(tbl => new Table()
+                    {
+                        Type = tbl[0],
+                        Name = tbl[1],
+                        Schema = tbl[2],
+                        ParentName = tbl[3],
+                        ParentType = tbl[4]
+                    })
+                    .ToList();
+
+            columns = importedLines.Where(importedLine => importedLine.ToLower().StartsWith("column"))
+                    .Select(clnLine => clnLine.Split(';'))
+                    .Select(cln => new Column()
+                    {
+                        Type = cln[0],
+                        Name = cln[1],
+                        Schema = cln[2],
+                        ParentName = cln[3],
+                        ParentType = cln[4],
+                        DataType = cln[5],
+                        IsNullable = cln[6]
+                    })
+                    .ToList();
 
             tables.ToList().ForEach(tbl => tbl.Columns = columns.Where(cl => cl.ParentName.ToLower() == tbl.Name.ToLower()).ToList());
             databases.ToList().ForEach(db => db.Tables = tables.Where(tbl => tbl.ParentName.ToLower() == db.Name.ToLower()).ToList());
@@ -32,40 +58,6 @@
 
             return databases;
 
-        }
-
-        private Column MapLineToColumnObject(string columnLine)
-        {
-            var splittedLine = columnLine.Split(';');
-
-            return new Column()
-            {
-                Type = splittedLine[0],
-                Name = splittedLine[1],
-                Schema = splittedLine[2],
-                ParentName = splittedLine[3],
-                ParentType = splittedLine[4],
-                DataType = splittedLine[5],
-                IsNullable = splittedLine[6]
-            };
-        }
-        private Table MapLineToTableObject(string tableLine)
-        {
-            var splittedLine = tableLine.Split(';');
-            return new Table()
-            {
-                Type = splittedLine[0],
-                Name = splittedLine[1],
-                Schema = splittedLine[2],
-                ParentName = splittedLine[3],
-                ParentType = splittedLine[4]
-            };
-        }
-
-        private Database MapLineToDatabaseObject(string databaseLine)
-        {
-            var splittedLine = databaseLine.Split(';');
-            return new Database() { Type = splittedLine[0], Name = splittedLine[1] };
         }
 
         private void ClearImportedData(IList<Database> ImportedObjects)

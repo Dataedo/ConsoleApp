@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ConsoleApp
 {
-    public interface IDataPrinter
+    internal interface IDataPrinter
     {
         void PrintDatabaseObjects(IList<Database> databaseObjects);
     }
