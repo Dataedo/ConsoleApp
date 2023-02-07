@@ -19,14 +19,21 @@
             {
                 var importedLine = importedLines[i];
                 var values = importedLine.Split(';');
-                var importedObject = new ImportedObject();
-                importedObject.Type = values[0];
-                importedObject.Name = values[1];
-                importedObject.Schema = values[2];
-                importedObject.ParentName = values[3];
-                importedObject.ParentType = values[4];
-                importedObject.DataType = values[5];
-                importedObject.IsNullable = values[6];
+
+
+                if (String.IsNullOrEmpty(importedLine) || values.Length < 7)
+                    continue;
+
+                var importedObject = new ImportedObject
+                {
+                    Type = values[0],
+                    Name = values[1],
+                    Schema = values[2],
+                    ParentName = values[3],
+                    ParentType = values[4],
+                    DataType = values[5],
+                    IsNullable = values[6]
+                };
                 ImportedObjects.Add(importedObject);
             }
 
